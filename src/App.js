@@ -170,7 +170,7 @@ const App = () => {
           <Line key={index} data-line={index} />
         ))}
       </BoardContainer>
-      <ResetButton onClick={() => send("RESET")}>Reset</ResetButton>
+      <ResetButton onClick={() => send({ type: "RESET" })}>Reset</ResetButton>
     </AppContainer>
   );
 };
