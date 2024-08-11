@@ -14,8 +14,8 @@ export const BoardContainer = styled.div`
   background-color: #9caa9d;
   box-shadow: -3vmin 1vmin 6vmin #bc0b0b;
 
-  transform: rotateX(45deg) rotateZ(-45deg);
-  transform-style: preserve-3d;
+  /* transform: rotateX(45deg) rotateZ(-45deg);
+  transform-style: preserve-3d; */
 
   &[data-state="playing"] .tile:not([data-player]) {
     cursor: pointer;
