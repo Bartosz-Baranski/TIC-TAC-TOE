@@ -1,17 +1,13 @@
-* {
-  position: relative;
-  box-sizing: border-box;
-}
-
-html {
-  background-color: #22432e;
-  font-family: "PT Sans", sans-serif;
-  font-weight: 400;
-  height: 100%;
-}
-
 body {
-  display: grid;
-  place-items: center;
-  min-height: 100%;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
 }

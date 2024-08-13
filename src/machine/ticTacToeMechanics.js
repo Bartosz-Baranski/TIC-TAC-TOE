@@ -1,129 +1,141 @@
 import { createMachine, assign } from "xstate";
 
-const winningLines = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
-
-function checkWin(board) {
-  if (!board || !Array.isArray(board)) {
-    console.error("Invalid board:", board);
-    return false;
-  }
-
-  for (let line of winningLines) {
-    const xWon = line.every((index) => board[index] === "x");
-    if (xWon) return ["x", line];
-
-    const oWon = line.every((index) => board[index] === "o");
-    if (oWon) return ["o", line];
-  }
-  return false;
-}
-
 const initialContext = {
   board: Array(9).fill(null),
-  player: "x",
+  currentPlayer: "X",
   winner: null,
   winningLine: null,
   moves: 0,
 };
 
-const gameMachine = createMachine({
-  id: "game",
-  initial: "playing",
-  context: initialContext,
-  states: {
-    playing: {
-      always: [
-        {
-          target: "winner",
-          guard: (ctx) => {
-            console.log("Checking win with board:", ctx.board);
-            if (!Array.isArray(ctx.board)) {
-              console.error("Invalid board in guard:", ctx.board);
-              return false;
-            }
-            const result = checkWin(ctx.board);
-            console.log("Win check result:", result);
-            return result !== false;
+const ticTacToeMachine = createMachine(
+  {
+    id: "ticTacToe",
+    initial: "playing",
+    context: initialContext,
+    states: {
+      playing: {
+        on: {
+          MAKE_MOVE: {
+            actions: "makeMove",
+            target: [
+              { target: "won", cond: "checkWinCondition" },
+              { target: "draw", cond: "checkDrawCondition" },
+              { target: "playing" },
+            ],
           },
-          actions: assign({
-            winner: (ctx) => {
-              const result = checkWin(ctx.board);
-              console.log("Set winner to:", result ? result[0] : null);
-              return result ? result[0] : null;
-            },
-            winningLine: (ctx) => {
-              const result = checkWin(ctx.board);
-              console.log("Set winning line to:", result ? result[1] : null);
-              return result ? result[1] : null;
-            },
-          }),
-        },
-        {
-          target: "draw",
-          guard: (ctx) => {
-            console.log("Checking draw with board:", ctx.board);
-            return (
-              Array.isArray(ctx.board) &&
-              ctx.board.every((item) => item !== null)
-            );
+          RESET: {
+            actions: "resetGame",
           },
-        },
-      ],
-      on: {
-        PLAY: {
-          guard: (ctx, e) => {
-            console.log("Play event with value:", e.value);
-            if (!Array.isArray(ctx.board) || e.value === undefined) {
-              console.error(
-                "Invalid state or event value:",
-                ctx.board,
-                e.value
-              );
-              return false;
-            }
-            return ctx.board[e.value] === null;
-          },
-          actions: assign({
-            board: (ctx, e) => {
-              if (!Array.isArray(ctx.board)) {
-                console.error(
-                  "Board is undefined or not an array. Resetting to initial state."
-                );
-                return Array(9).fill(null);
-              }
-              const updatedBoard = [...ctx.board];
-              updatedBoard[e.value] = ctx.player;
-              console.log("Updated board:", updatedBoard);
-              return updatedBoard;
-            },
-            player: (ctx) => (ctx.player === "x" ? "o" : "x"),
-            moves: (ctx) => ctx.moves + 1,
-          }),
-        },
-        RESET: {
-          target: "playing",
-          actions: assign(() => initialContext),
         },
       },
+      won: {
+        type: "final",
+        entry: "logWin",
+      },
+      draw: {
+        type: "final",
+        entry: "logDraw",
+      },
     },
-    winner: {},
-    draw: {},
   },
-  on: {
-    RESET: {
-      target: ".playing",
-      actions: assign(() => initialContext),
-    },
-  },
-});
+  {
+    actions: {
+      makeMove: assign((context, event) => {
+        console.log("Action: makeMove triggered");
+        console.log("Context before move:", context);
+        console.log("Event received:", event);
 
-export default gameMachine;
+        if (!event) {
+          console.error("No event provided.");
+          return context;
+        }
+
+        if (typeof event.index !== "number") {
+          console.error("Event index is not a number:", event);
+          return context;
+        }
+
+        if (event.index < 0 || event.index >= context.board.length) {
+          console.error("Event index is out of bounds:", event.index);
+          return context;
+        }
+
+        const board = [...context.board];
+
+        if (board[event.index] === null) {
+          board[event.index] = context.currentPlayer;
+          console.log("Board updated:", board);
+
+          const nextPlayer = context.currentPlayer === "X" ? "O" : "X";
+          console.log("Next player:", nextPlayer);
+
+          return {
+            board,
+            currentPlayer: nextPlayer,
+            moves: context.moves + 1, // Increase move count
+          };
+        } else {
+          console.error("Square already taken at index:", event.index);
+          return context;
+        }
+      }),
+
+      resetGame: assign({
+        board: Array(9).fill(null),
+        currentPlayer: "X",
+        winner: null,
+        winningLine: null,
+        moves: 0,
+      }),
+
+      logWin: () => {
+        console.log("Action: logWin triggered");
+        console.log("A player has won!");
+      },
+
+      logDraw: () => {
+        console.log("Action: logDraw triggered");
+        console.log("The game is a draw.");
+      },
+    },
+
+    guards: {
+      checkWinCondition: (context) => {
+        console.log("Guard: checkWinCondition triggered");
+        console.log("Context:", context);
+
+        const winPatterns = [
+          [0, 1, 2],
+          [3, 4, 5],
+          [6, 7, 8],
+          [0, 3, 6],
+          [1, 4, 7],
+          [2, 5, 8],
+          [0, 4, 8],
+          [2, 4, 6],
+        ];
+
+        const win = winPatterns.some((pattern) =>
+          pattern.every(
+            (index) => context.board[index] === context.currentPlayer
+          )
+        );
+
+        console.log("Win condition met:", win);
+        return win;
+      },
+
+      checkDrawCondition: (context) => {
+        console.log("Guard: checkDrawCondition triggered");
+        console.log("Context:", context);
+
+        const draw = context.board.every((square) => square !== null);
+        console.log("Draw condition met:", draw);
+        return draw;
+      },
+    },
+  }
+);
+
+export default ticTacToeMachine;

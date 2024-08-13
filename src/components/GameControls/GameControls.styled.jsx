@@ -1,5 +1,17 @@
 import styled from "styled-components";
 
+export const ControlsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+`;
+
+export const Message = styled.p`
+  font-size: 18px;
+  margin: 10px 0;
+`;
+
 export const ResetButton = styled.button`
   appearance: none;
   font-size: 1.5rem;
@@ -11,7 +23,7 @@ export const ResetButton = styled.button`
   text-transform: uppercase;
   margin-top: 1rem;
   position: absolute;
-  top: 110%;
+  top: 85%;
   left: 50%;
   transform: translate(-50%, -50%);
   cursor: pointer;
