@@ -2,7 +2,6 @@ import React from "react";
 import PlayField from "../PlayField/PlayField.jsx";
 import { BoardContainer, Line } from "./Board.styled";
 
-// Funkcja do generowania zakresu numerów
 function range(start, end) {
   return Array.from({ length: end - start }, (_, i) => i + start);
 }
@@ -10,13 +9,17 @@ function range(start, end) {
 const Board = ({ state, send }) => {
   const { board, winningLine, winner } = state.context;
 
-  // Obsługuje kliknięcia w kwadrat
   const handleSquareClick = (index) => {
-    if (typeof index === "number" && index >= 0 && index < 9) {
+    console.log(`Square clicked with index: ${index}`);
+
+    if (typeof index === "number" && index >= 0 && index < board.length) {
       if (!winner && board[index] === null) {
-        console.log(`Square clicked with index: ${index}`);
         console.log(`Sending event: {type: 'MAKE_MOVE', index: ${index}}`);
-        send({ type: "MAKE_MOVE", index }); // Upewnij się, że `index` jest przekazywany prawidłowo
+        send({ type: "MAKE_MOVE", index });
+      } else if (winner) {
+        console.log("Game over. No more moves allowed.");
+      } else {
+        console.log("Square already taken.");
       }
     } else {
       console.error("Invalid index:", index);
@@ -30,9 +33,9 @@ const Board = ({ state, send }) => {
       {board.map((value, index) => (
         <PlayField
           key={index}
-          content={value} // Przekazywanie właściwości 'content'
+          content={value}
           onClick={() => handleSquareClick(index)}
-          isWinningSquare={winningLine?.includes(index)} // Przekazywanie 'isWinningSquare'
+          isWinningSquare={winningLine?.includes(index)}
         />
       ))}
       {range(0, 4).map((index) => (

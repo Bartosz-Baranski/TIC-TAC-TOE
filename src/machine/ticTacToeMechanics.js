@@ -73,7 +73,7 @@ const ticTacToeMachine = createMachine(
           return {
             board,
             currentPlayer: nextPlayer,
-            moves: context.moves + 1, // Increase move count
+            moves: context.moves + 1, 
           };
         } else {
           console.error("Square already taken at index:", event.index);
