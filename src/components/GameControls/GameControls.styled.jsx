@@ -8,7 +8,9 @@ export const ControlsContainer = styled.div`
 `;
 
 export const Message = styled.p`
-  font-size: 18px;
+  font-size: 42px;
+  font-weight: bold;
+
   margin: 10px 0;
 `;
 
